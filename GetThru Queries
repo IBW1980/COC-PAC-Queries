@@ -1,0 +1,12 @@
+SELECT
+name
+, coc_callers.email
+, NVL(coc_contactsaddresses_mym.state
+      , core_user.state) as state 
+FROM tmc_thrutalk.coc_callers
+LEFT JOIN tmc_van.coc_contactsemails_mym 
+	ON coc_contactsemails_mym.email=coc_callers.email
+LEFT JOIN tmc_van.coc_contactsaddresses_mym 
+	ON coc_contactsaddresses_mym.vanid=tmc_van.coc_contactsemails_mym.vanid
+LEFT JOIN coc_ak.core_user 
+	ON core_user.email=tmc_thrutalk.coc_callers.email
