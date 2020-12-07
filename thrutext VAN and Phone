@@ -1,0 +1,16 @@
+SELECT
+coc_messages.sender_first_name
+, coc_messages.sender_last_name
+,coc_messages.sender_phone
+,coc_contactsaddresses_mym.state
+FROM tmc_thrutext.coc_messages
+
+LEFT JOIN tmc_van.coc_contactsphones_mym 
+	ON coc_messages.sender_phone= coc_contactsphones_mym.phone
+
+LEFT JOIN tmc_van.coc_contactsaddresses_mym 
+	ON coc_contactsaddresses_mym.vanid= coc_contactsphones_mym.vanid  
+        
+LIMIT 20
+
+---This query joins volunteers using thrutext by vanid (every action) and phone
