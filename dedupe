@@ -1,0 +1,25 @@
+SELECT 
+opt_in.user_id
+, opt_in.user__phone_number
+, users.phone_number
+, users.modified_date
+, users.given_name
+, users.family_name
+, users.email_address
+, zip.state 
+, users.postal_code
+-- label each row sequentially for the tables split up by user id
+, row_number() OVER (PARTITION BY users.id ORDER BY users.modified_date DESC) as rn
+-- grab people who have opted in
+FROM coc_mobilize_pac.sms_opt_ins as opt_in
+-- grab their personal information
+JOIN coc_mobilize_pac.users
+ON opt_in.user_id = users.id
+-- this is mapping zip code to state
+JOIN tmc_communal.zip_state_lookup as zip
+ON zip.zip = users.postal_code
+-- don't include people with no phone number
+WHERE opt_in.user__phone_number is not Null
+-- only include people who have opted in
+AND opt_in.sms_opt_in_status = 'OPT_IN'
+LIMIT 50
