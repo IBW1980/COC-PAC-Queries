@@ -1,0 +1,38 @@
+with mobilize_base as (
+  SELECT 
+opt_in.user_id
+, opt_in.user__phone_number
+, users.phone_number
+, users.modified_date
+, users.given_name
+, users.family_name
+, users.email_address
+, zip.state 
+, users.postal_code
+, row_number() OVER (PARTITION BY users.id ORDER BY users.modified_date DESC) as rn
+FROM coc_mobilize_pac.sms_opt_ins as opt_in
+JOIN coc_mobilize_pac.users
+ON opt_in.user_id = users.id
+JOIN tmc_communal.zip_state_lookup as zip
+ON zip.zip = users.postal_code
+WHERE opt_in.user__phone_number is not Null
+AND opt_in.sms_opt_in_status = 'OPT_IN'
+)
+​
+SELECT 
+-- super useful function as well, if the first value is null, uses the second value instead
+NVL(user__phone_number, phone_number)
+, given_name as first_name
+, family_name as last_name
+, email_address as email
+, '' as street1
+, '' as street2
+, '' as city
+, state 
+, postal_code
+, 'USA' as country
+FROM mobilize_base
+WHERE rn = 1 -- selects first row from each user's table
+LIMIT 10
+
+
